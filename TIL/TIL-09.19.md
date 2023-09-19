@@ -1,0 +1,11 @@
+#BitCoin Project
+
+React-router V6
+
+"state"
+이 속성은 기록 상태 "state" 내부에 저장되는 새 위치에 대한 상태 저장 값을 설정하는 데 사용 될 수 있다.
+이 값은 나중에 액세스 할 수 있다. -> useLocation
+
+<Link to="new-path" state=<{{some: "value"}}>
+
+"new-path" 경로에서 이 상태 값에 액세스 할 수 있다.

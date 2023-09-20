@@ -1,7 +1,7 @@
 # TIL
 
-Categories
+[Categories]
 
-1. JavaScript
-2. React
-3. TypeScript
+[1] JavaScript
+[2] React
+[3] TypeScript

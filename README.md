@@ -9,9 +9,9 @@
 [• 2024-01-TIL](https://github.com/tyranoboy1/TIL/tree/main/TIL/2024.01)
 
 ## SubJects
-• JavaScript
-• React.js
-• TypeScript
+• JavaScript<br/>
+• React.js<br/>
+• TypeScript<br/>
 • Next.js
 
 

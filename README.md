@@ -10,3 +10,8 @@
 
 ## SubJects
 • JavaScript
+• React.js
+• TypeScript
+• Next.js
+
+

@@ -6,7 +6,12 @@
 
 ## TIL
 
-[• 2023-09](https://github.com/tyranoboy1/TIL/tree/main/TIL/2023.09)<br/>
-[• 2023-10](https://github.com/tyranoboy1/TIL/tree/main/TIL/2023.10)
+[• 2024-01-TIL](https://github.com/tyranoboy1/TIL/tree/main/TIL/2024.01)
 
 ## SubJects
+• JavaScript<br/>
+• React.js<br/>
+• TypeScript<br/>
+• Next.js
+
+

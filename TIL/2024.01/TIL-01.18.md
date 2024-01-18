@@ -172,3 +172,268 @@ try {
 
 _에러는 호출자 방향으로 전파된다._<br/>
 즉 콜 스택의 아래 방향(실행 중인 컨텍스트가 푸시되기 직전에 푸시된 실행 컨텍스트 방향)으로 전파된다.
+
+### 프로미스의 생성
+
+```javascript
+// 프로미스 생성
+const promise = new Promise((resolve, reject) => {
+  // promise 함수의 콜백 함수 내부에서 비동기 처리를 수행한다.
+  if(/* 비동기 처리 성공 */){
+    resolve('result')
+  }else{ /* 비동기 처리 실패 */
+  reject("failure reason")
+  }
+});
+```
+
+```javascript
+// GET 요청을 위한 비동기 함수
+const promiseGet = (url) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.send();
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        // 성공적으로 응답을 전달받으면 resolve 함수를 호출한다.
+        resolve(JSON.parse(xhr.response));
+      } else {
+        // 에러 처리를 위해 reject 함수를 호출한다.
+        reject(new Error(xhr.status));
+      }
+    };
+  });
+};
+
+// promiseGet 함수는 프로미스를 반환한다.
+promiseGet("https://jsonplaceholder.typicode.com/posts/1");
+```
+
+pending => 비동기 처리가 아직 수행되지 않은 상태 --- 프로미스가 생성된 직후 기본 상태<br/>
+fulfilled => 비동기 처리가 수행된 상태(성공) --- resolve 함수 호출<br/>
+rejected => 비동기 처리가 수행된 상태(실패) --- reject 함수 호출<br/>
+
+_프로미스의 상태는 resolve 또는 reject 함수를 호출하는 것으로 결정된다._
+
+```javascript
+// fulfilled된 프로미스
+// 비동기 처리가 성공하면 프로미스는 pending 상태에서 fulfilled 상태로 변화한다.
+const fulfilled = new Promise((resolve) => resolve(1));
+```
+
+```javascript
+// reject된 프로미스
+// 비동기 처리가 실패하면 프로미스는 pending 상태에서 rejected 상태로 변화한다.
+const fulfilled = new Promise((resolve) => resolve(1));
+```
+
+_프로미스는 비동기 처리 상태와 처리 결과를 관리하는 객체이다._<br/>
+
+### 프로미스
+
+_프로미스의 비동기 처리 상태가 변화하면 후속 처리 메서드에 인자로 전달한 콜백 함수가 선택적으로 호출된다._<br/>
+
+### Promise.prototype.then
+
+1. 첫번째 콜백 함수는 프로미스가 fulfilled 상태가 되면 호출된다. 이때 콜백 함수는 프로미스의 비동기 처리 결과를 인수로 전달받는다.<br/>
+2. 두번째 콜백 함수는 프로미스가 reject인 상태가 되면 호출된다. 이때 콜백 함수는 프로미스의 에러를 인수로 전달 받는다.
+
+```javascript
+// fulfilled
+new Promise((resolve) => resolve("fulfilled")).then(
+  (v) => console.log(v),
+  (e) => console.error(e)
+); //fulfilled
+
+// rejected
+new Promise((_, reject) => reject(new Error("rejected"))).then(
+  (v) => console.log(v),
+  (e) => console.error(e) // Error: rejected
+);
+```
+
+### Promise.prototype.catch
+
+```javascript
+// rejected
+new Promise((_, reject) => reject(new Error("rejected"))).catch(
+  (e) => console.log(e) // Error: rejected
+);
+```
+
+```javascript
+// rejected
+new Promise((_, reject) => reject(new Error("rejected"))).then(
+  undefined,
+  (e) => console.log(e) // Error: rejected
+);
+```
+
+### Promise,prototype.finally
+
+```javascript
+new Promise(() => {}).finally(() => console.log("finally")); // finally
+```
+
+```javascript
+const promiseGet = (url) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.send();
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        // 성공적으로 응답을 전달받으면 resolve 함수를 호출한다.
+        resolve(JSON.parse(xhr.reponse));
+      } else {
+        // 에러 처리를 위해 reject 함수를 호출한다.
+        reject(new Error(xhr.status));
+      }
+    };
+  });
+};
+
+// promiseGet 함수는 프로미스를 반환한다.
+promiseGet("https://jsonplaceholder.typicode.com/posts/1")
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err))
+  // 프로미스의 성공 실패 관련 없이 무조건 한번 호출
+  .finally(() => {
+    console.log("Bye!");
+  });
+```
+
+### 프로미스의 에러처리
+
+```javascript
+const wrongUrl = "https://jsonplaceholder.typicode.com/XXX/1";
+
+// 부적절한 URL이 지정되었기 때문에 에러가 발생한다.
+promiseGet(wrongUrl).then(
+  (res) => console.log(res),
+  (err) => console.error(err)
+); // Error: 404
+```
+
+```javascript
+const wrongUrl = "https://jsonplaceholder.typicode.com/XXX/1";
+
+// 부적절한 URL이 지정되었기 때문에 에러가 발생한다.
+promiseGet(wrongUrl).then(
+  (res) => console.log(res)).catch(
+  (err) => console.error(err))
+); // Error: 404
+```
+
+### 프로미스 정적 메서드
+
+1. Promise.resolve / Promise.reject<br/>
+
+```javascript
+// 배열을 resolve하는 프로미스를 생성
+const resolvedPromise = Promise.resolve([1, 2, 3]);
+resolvedPromise.then(console.log); // [1,2,3]
+
+const resolvedPromise = new Promise((resolve) => resolve([1, 2, 3]));
+resolvedPromise.then(console.log); // [1,2,3]
+```
+
+```javascript
+// 에러 객체를 reject하는 프로미스를 생성
+const resolvedPromise = Promise.reject(new Error("Error"));
+resolvedPromise.catch(console.log); // Error: Error!
+
+const resolvedPromise = new Promise((_, reject) => reject(new Error("Error")));
+resolvedPromise.catch(console.log); // Error: Error!
+```
+
+2. Promise.all<br/>
+
+```javascript
+const requestData1 = () =>
+  new Promise((resolve) => setTimeout(() => resolve(1), 3000));
+const requestData2 = () =>
+  new Promise((resolve) => setTimeout(() => resolve(2), 2000));
+const requestData3 = () =>
+  new Promise((resolve) => setTimeout(() => resolve(3), 1000));
+
+// 세 개의 비동기 처리를 병렬로 처리
+Promise.all([requestData1(), requestData2(), requestData3()])
+  .them(console.log) // [1,2,3] 3초 소요
+  .catch(console.error);
+```
+
+```javascript
+const requestData1 = () =>
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 1")), 3000)
+  );
+const requestData2 = () =>
+  new Promise((resolve) => setTimeout(() => resolve(2), 2000));
+const requestData3 = () =>
+  new Promise((resolve) => setTimeout(() => resolve(3), 1000));
+
+// 세 개의 비동기 처리를 병렬로 처리
+Promise.all([
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 1")), 3000)
+  ),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 2")), 2000)
+  ),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 3")), 1000)
+  ),
+])
+  .them(console.log)
+  .catch(console.error); // Error: Error3
+```
+
+3. Promise.race<br/>
+
+```javascript
+Promise.race([
+    new Promise((resolve) =>
+    setTimeout(() => resolve(1), 3000)
+  ), new Promise((resolve) =>
+    setTimeout(() => resolve(2), 2000)
+  ), new Promise((resolve) =>
+    setTimeout(() => resolve(3), 1000) // 가장먼저 fulfilled 된 프로미스 처리결과 resolve
+  );])
+  .them(console.log)
+  .catch(console.error); // 3
+```
+
+```javascript
+Promise.race([
+    new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 1")), 3000)
+  ), new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 2")), 2000)
+  ), new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error 3")), 1000)
+  );])
+  .them(console.log)
+  .catch(console.error); // Error: Error3
+```
+
+4. Promise.allSettled
+
+```javascript
+Promise.allSettled([
+  new Promise((resolve) => setTimeout(() => resolve(1), 2000)),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Error!")), 1000)
+  ),
+]).then(console.log);
+/* [{status: "fulfilled" , value:1}, {status: "rejected", reason: Error: Error! at <anonymous>:3:54}] */
+```
+
+```javascript
+
+[{status: "fulfilled" , value:1}, // 프로미스가 fulfilled 상태인 경우
+ {status: "rejected", reason: Error: Error! at <anonymous>:3:60}] // 프로미스가 rejected 상태인 경우
+```

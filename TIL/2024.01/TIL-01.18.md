@@ -116,5 +116,59 @@ const get = (url, successCallback, failureCallback) => {
 // id가 1인 post를 취득
 // 서버의 응답에 대한 후속 처리를 위한 콜백 함수를 비동기 함수인 get에 전달해야 된다.
 get('https://jsonplaceholder.typicode.com/posts/1`)
-
 ```
+
+콜백 함수를 통해 비동기 처리 결과에 대한 후속 처리를 수행하는 비동기 함수가 비동기 처리 결과를 가지고 또 다시 비동기 함수를 호출해야 한다면 콜백 함수 호출이 중첩되어 복잡도가 높아지는 현상 => 콜백헬
+
+```javascript
+// GET 요청을 위한 비동기 함수
+const get = (url, callback) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.send();
+
+  xhr.onload = () => {
+    if (xhr.status === 200) {
+      // 서버의 응답을 콜백 함수에 인수로 전달하면서 호출하여 응답에 대한 후속 처리를 한다.
+      callback(JSON.parse(xhr.response));
+    } else {
+      console.error(`${xhr.status} ${xhr.statusText}`);
+    }
+  };
+};
+const url = "https://jsonplaceholder.typicode.com";
+get(`${url}/post/1`, ({ userId }) => {
+  console.log(userId); // 1
+  // post의 userId를 사용하여 user 정보를 취득
+  get(`${url}/users/${userId}`, (userInfo) => {
+    console.log(userInfo);
+  });
+});
+```
+
+```javascript
+get("/step1", (a) => {
+  get(`/step2/${a}`, (b) => {
+    get(`/step3/${b}`, (c) => {
+      get(`/step4/${c}`, (d) => {
+        console.log(d);
+      });
+    });
+  });
+});
+```
+
+```javascript
+// 비동기 콜백 패턴의 가장 큰 문제점 => 에러 처리 곤란
+try {
+  setTimeout(() => {
+    throw new Error("Error!");
+  }, 1000);
+} catch (e) {
+  // 에러를 캐치하지 못한다.
+  console.error("캐치한 에러", e);
+}
+```
+
+_에러는 호출자 방향으로 전파된다._<br/>
+즉 콜 스택의 아래 방향(실행 중인 컨텍스트가 푸시되기 직전에 푸시된 실행 컨텍스트 방향)으로 전파된다.
